@@ -86,7 +86,7 @@ jobs:
           short-description: ${{ github.event.repository.description }}
 
       - name: Check pull
-        if: github.event_name != 'pull_request'
+        if: github.ref_type == 'tag'
         run: |
           docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
           docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}

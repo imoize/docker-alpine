@@ -75,5 +75,3 @@ jobs:
         run: |
           docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
           docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker pull ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
