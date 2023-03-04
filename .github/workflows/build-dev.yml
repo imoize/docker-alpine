@@ -69,3 +69,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: ${{ env.DOCKERHUB_SLUG }}
           short-description: ${{ github.event.repository.description }}
+
+      - name: Check pull
+        if: github.event_name != 'pull_request'
+        run: |
+          docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker pull ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
