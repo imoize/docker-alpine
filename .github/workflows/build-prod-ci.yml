@@ -1,29 +1,40 @@
-name: ghcr ci
+name: build-prod-ci
 
 on:
   push:
-    branches: [ "master" ]
-    tags: [ '*.*.*' ]
+    branches: 
+      - 'master'
+    tags: 
+      - '*'
   pull_request:
-    branches: [ "master" ]
+    branches: 
+      - 'master'
+    
+env:
+  DOCKERHUB_SLUG: imoize/alpine-s6
+  GHCR_SLUG: ghcr.io/imoize/alpine-s6
+  
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-      id-token: write
-
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v2.1.0
 
-      - name: Login to registry ghcr.io
+      - name: Setup Docker buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2.4.1
+
+      - name: Login to GHCR
         if: github.ref_type == 'tag'
         uses: docker/login-action@v2
         with:
@@ -31,10 +42,45 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Login to DOCKERHUB
+        if: github.ref_type == 'tag'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4.3.0
+        with:
+          flavor: latest=true
+          images: |
+            ${{ env.GHCR_SLUG }}
+            ${{ env.DOCKERHUB_SLUG }}
+          labels: |
+            maintainer=Imoize
+            org.opencontainers.image.vendor=Imoize
+            org.opencontainers.image.title=alpine-s6
+            org.opencontainers.image.description=Docker Alpine Linux with s6 overlay
+          tags: |
+            type=ref,event=tag
+
       - name: Build and push Docker image
+        if: ${{ github.ref_type == 'tag' }}
         id: build-and-push
         uses: docker/build-push-action@v4
         with:
           context: .
+          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
           push: ${{ github.ref_type == 'tag' }}
-          tags: ${{ github.actor }}/base-alpine
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+      
+      - name: Docker Hub Description
+        if: ${{ github.ref_type == 'tag' }}
+        uses: peter-evans/dockerhub-description@v3.1.2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: ${{ env.DOCKERHUB_SLUG }}
+          short-description: ${{ github.event.repository.description }}
