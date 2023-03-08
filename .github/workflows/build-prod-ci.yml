@@ -63,7 +63,7 @@ jobs:
             org.opencontainers.image.title=alpine-s6
             org.opencontainers.image.description=Docker Alpine Linux with s6 overlay
           tags: |
-            type=ref,event=tag
+            type=match,pattern=(\d.\d*)
 
       - name: Build and push Docker image
         if: ${{ github.ref_type == 'tag' }}
@@ -88,13 +88,13 @@ jobs:
       - name: Check manifest
         if: github.ref_type == 'tag'
         run: |
-          docker buildx imagetools inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker buildx imagetools inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker buildx imagetools inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.version }}
 
       - name: Check pull
         if: github.ref_type == 'tag'
         run: |
-          docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker pull ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.version }}
+          docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.version }}
+          docker pull ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.version }}
+          docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.version }}
