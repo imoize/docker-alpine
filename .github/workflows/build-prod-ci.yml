@@ -77,10 +77,24 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
       
       - name: Docker Hub Description
-        if: ${{ github.ref_type == 'tag' }}
+        if: github.ref_type == 'tag'
         uses: peter-evans/dockerhub-description@v3.1.2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: ${{ env.DOCKERHUB_SLUG }}
           short-description: ${{ github.event.repository.description }}
+
+      - name: Check manifest
+        if: github.ref_type == 'tag'
+        run: |
+          docker buildx imagetools inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker buildx imagetools inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
+
+      - name: Check pull
+        if: github.ref_type == 'tag'
+        run: |
+          docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker pull ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}

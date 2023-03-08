@@ -5,9 +5,9 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/imoize/alpine-s6.svg?color=3C79F5&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=pulls&logo=docker)](https://hub.docker.com/r/imoize/alpine-s6)
 ## Custom image based on alpine with s6-overlay 
 
-| Available | Architecture |
-| :----: | --- |
-| `X86_64` | amd64 |
-| `arm64` | aarch64|
-| `armv7` | armv7 |
-| `armv6` | armhf |
+| Available Architecture | 
+| :----:  |
+| `X86_64`   |
+| `arm64`    |
+| `armv7`    |
+| `armv6`    |

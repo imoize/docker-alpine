@@ -14,7 +14,7 @@ elif [[ ${TARGETARCH}${TARGETVARIANT} == armv6 ]]; then
     declare arch=armhf
 fi
 
-declare REL="${REL_VERSION}"
+declare REL="v${ALPINE_VERSION}"
 declare MIRROR="${MIRROR:-http://dl-cdn.alpinelinux.org/alpine}"
 declare PACKAGES=alpine-baselayout,alpine-keys,apk-tools,busybox,libc-utils,xz
 
