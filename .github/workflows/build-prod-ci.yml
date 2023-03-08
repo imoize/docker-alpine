@@ -63,7 +63,7 @@ jobs:
             org.opencontainers.image.title=alpine-s6
             org.opencontainers.image.description=Docker Alpine Linux with s6 overlay
           tags: |
-            type=ref,event=tag
+            type=match,pattern=(\d.\d*)
 
       - name: Build and push Docker image
         if: ${{ github.ref_type == 'tag' }}
