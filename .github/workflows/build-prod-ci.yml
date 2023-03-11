@@ -61,7 +61,6 @@ jobs:
             maintainer=Imoize
             org.opencontainers.image.vendor=Imoize
             org.opencontainers.image.title=alpine-s6
-            org.opencontainers.image.description=Docker Alpine Linux with s6 overlay
           tags: |
             type=match,pattern=(\d.\d*)
 
