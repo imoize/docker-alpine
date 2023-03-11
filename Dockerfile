@@ -75,7 +75,9 @@ RUN \
     ca-certificates \
     coreutils \
     curl \
+    sed \
     jq \
+    ed \
     procps \
     shadow \
     tzdata && \
