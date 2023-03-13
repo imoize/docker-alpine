@@ -4,15 +4,22 @@ on:
   push:
     branches: 
       - 'dev'
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/**.yml'
 
 env:
-  DOCKERHUB_SLUG: imoize/devel
+  DOCKERHUB_SLUG: imoize/alpine-s6
+  GHCR_SLUG: ghcr.io/imoize/alpine-s6-dev
 
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -26,7 +33,15 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v2.4.1
 
-      - name: Login to docker.io
+      - name: Login to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to DOCKERHUB
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
@@ -37,13 +52,11 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4.3.0
         with:
-          images: ${{ env.DOCKERHUB_SLUG }}
           labels: |
             maintainer=Imoize
             org.opencontainers.image.vendor=Imoize
             org.opencontainers.image.title=alpine-s6-dev
-            org.opencontainers.image.description=Docker Alpine Linux with s6 overlay
-          tags: alpine-s6-dev
+            org.opencontainers.image.version=3.17
 
       - name: Build and push Docker image
         if: ${{ github.event_name != 'pull_request' }}
@@ -51,16 +64,23 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+          platforms: linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ env.GHCR_SLUG }}:3.17
+            ${{ env.DOCKERHUB_SLUG }}:dev
       
-      - name: Docker Hub Description
-        if: ${{ github.event_name != 'pull_request' }}
-        uses: peter-evans/dockerhub-description@v3.1.2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          repository: ${{ env.DOCKERHUB_SLUG }}
-          short-description: ${{ github.event.repository.description }}
+      - name: Check manifest
+        if: github.event_name != 'pull_request'
+        run: |
+          docker buildx imagetools inspect ${{ env.DOCKERHUB_SLUG }}:dev
+          docker buildx imagetools inspect ${{ env.GHCR_SLUG }}:3.17
+
+      - name: Check pull
+        if: github.event_name != 'pull_request'
+        run: |
+          docker pull ${{ env.DOCKERHUB_SLUG }}:dev
+          docker image inspect ${{ env.DOCKERHUB_SLUG }}:dev
+          docker pull ${{ env.GHCR_SLUG }}:3.17
+          docker image inspect ${{ env.GHCR_SLUG }}:3.17

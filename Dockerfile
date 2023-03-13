@@ -25,18 +25,27 @@ RUN \
     /build-out && \
     sed -i -e 's/^root::/root:!:/' //build-out/etc/shadow
 
-# build images per arch 
+# build images per arch
+FROM build-stage AS base-386
+ARG S6_OVERLAY_ARCH="i686"
+
 FROM build-stage AS base-amd64
 ARG S6_OVERLAY_ARCH="x86_64"
 
 FROM build-stage AS base-arm64
 ARG S6_OVERLAY_ARCH="aarch64"
-
+ 
 FROM build-stage AS base-armv7
 ARG S6_OVERLAY_ARCH="armhf"
 
 FROM build-stage AS base-armv6
 ARG S6_OVERLAY_ARCH="arm"
+
+FROM build-stage AS base-s390x
+ARG S6_OVERLAY_ARCH="s390x"
+
+FROM build-stage AS base-ppc64le
+ARG S6_OVERLAY_ARCH="powerpc64le"
 
 # s6-stage
 FROM base-${TARGETARCH}${TARGETVARIANT} as s6-stage
@@ -54,7 +63,12 @@ RUN \
     curl -sLO "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" && \
     tar -C /build-out -Jxpf s6-overlay-noarch.tar.xz && \
     curl -sLO "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz" && \
-    tar -C /build-out -Jxpf s6-overlay-${S6_OVERLAY_ARCH}.tar.xz
+    tar -C /build-out -Jxpf s6-overlay-${S6_OVERLAY_ARCH}.tar.xz && \
+    curl -sLO "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz" && \
+    tar -C /build-out -Jxpf s6-overlay-symlinks-noarch.tar.xz && \
+    curl -sLO "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz" && \
+    tar -C /build-out -Jxpf s6-overlay-symlinks-arch.tar.xz
+
 
 # runtime stage
 FROM scratch
