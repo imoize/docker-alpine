@@ -9,7 +9,7 @@ Custom image based on alpine with s6-overlay.
 
 ## Supported Architectures
 
-We utilise the docker manifest for multi-platform awareness. More information is available from docker [here](https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-2.md#manifest-list).
+Multi-platform available trough docker manifest. More information is available from docker [here](https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-2.md#manifest-list).
 
 Simply pulling using `latest` tag should retrieve the correct image for your arch.
 
@@ -17,16 +17,18 @@ The architectures supported by this image:
 
 | Architecture | Available |
 | :----: | :----: |
+| x86 | ✅ |
 | x86-64 | ✅ |
 | arm64 | ✅ |
 | armv7 | ✅ |
 | armv6 | ✅ |
-
+| s390x | ✅ |
+|ppc64le | ✅ |
 ## Usage
 
 Here are some example to help you get started creating a container, easiest way to setup is using docker-compose or use docker cli.
 
-#### docker-compose (recommended)
+- **docker-compose (recommended)**
 
 ```yaml
 ---
@@ -42,7 +44,7 @@ services:
     restart: always
 ```
 
-#### docker cli
+- **docker cli**
 
 ```bash
 docker run -d \
@@ -54,15 +56,39 @@ docker run -d \
   imoize/alpine-s6:latest
 ```
 
-## Parameters
+## Configuration
 
-Container images are configured using parameters passed at runtime (such as those above).
+### Environment variables
 
-| Parameter | Function |
-| :---: | --- |
-| PUID | for UserID |
-| PGID | for GroupID |
-| TZ | specify a timezone see this [list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List). |
+When you start the Nginx image, you can adjust the configuration of the instance by passing one or more environment variables either on the `docker-compose` file or on the `docker run` command line. Please note that some variables are only considered when the container is started for the first time. If you want to add a new environment variable:
+
+- **for `docker-compose` add the variable name and value:**
+
+```yaml
+alpine-s6:
+    ...
+    environment:
+    - PUID=1001
+    ...
+```
+
+- **for manual execution add a `-e` option with each variable and value:**
+
+```bash
+  docker run -d \
+  -e PUID=1001 \
+  imoize/alpine-s6:latest
+```
+
+### Available environment variables:
+
+- `PUID=...` for UserID.
+- `PGID=...` for GroupID.
+- `TZ=...` specify a timezone see this [list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List). Default: **UTC**
+- `S6_VERBOSITY=...` controls the verbosity of s6-rc. Default: **2**
+    * 0 will only print errors.
+    * 1 will only print warnings and errors.
+    * 2 is normally verbose: it will list the service start and stop operations.
 
 ## User / Group Identifiers
 
@@ -72,7 +98,7 @@ For example: `PUID=1001` and `PGID=1001`, to find yours user `id` and `gid` type
     uid=1001(user) gid=1001(group) groups=1001(group)
 ```
 
-## Tips Info
+## Tips / Info
 
 * Shell access whilst the container is running:
 ```console
@@ -156,7 +182,7 @@ docker image prune
 
 ## Contributing
 
-We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/imoize/docker-base-alpine/issues) or submitting a [pull request](https://github.com/imoize/docker-base-alpine/pulls) with your contribution.
+We'd love for you to contribute to this container. You can submitting a [pull request](https://github.com/imoize/docker-base-alpine/pulls) with your contribution.
 
 ## Issues
 
