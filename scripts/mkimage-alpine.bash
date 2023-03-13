@@ -6,6 +6,12 @@
 
 if [[ ${TARGETARCH}${TARGETVARIANT} == amd64 ]]; then
     declare arch=x86_64
+elif [[ ${TARGETARCH}${TARGETVARIANT} == 386 ]]; then
+    declare arch=x86
+elif [[ ${TARGETARCH}${TARGETVARIANT} == s390x ]]; then
+    declare arch=s390x
+elif [[ ${TARGETARCH}${TARGETVARIANT} == ppc64le ]]; then
+    declare arch=ppc64le
 elif [[ ${TARGETARCH}${TARGETVARIANT} == arm64 ]]; then
     declare arch=aarch64
 elif [[ ${TARGETARCH}${TARGETVARIANT} == armv7 ]]; then
