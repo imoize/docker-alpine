@@ -34,7 +34,7 @@ ARG S6_OVERLAY_ARCH="x86_64"
 
 FROM build-stage AS base-arm64
 ARG S6_OVERLAY_ARCH="aarch64"
- 
+
 FROM build-stage AS base-armv7
 ARG S6_OVERLAY_ARCH="armhf"
 
@@ -94,10 +94,11 @@ RUN \
     ed \
     procps \
     shadow \
+    netcat-openbsd \
     tzdata && \
     echo "**** create user and make folders ****" && \
     groupmod -g 1000 users && \
-    useradd -u 1000 -U -d /config -s /bin/false disty && \
+    useradd -u 901 -U -d /config -s /bin/false disty && \
     usermod -G users disty && \
     mkdir -p \
     /app \
