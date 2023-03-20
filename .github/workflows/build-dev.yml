@@ -53,6 +53,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4.3.0
         with:
+          images: |
+            ${{ env.GHCR_SLUG }}
+            ${{ env.DOCKERHUB_SLUG }}
           labels: |
             maintainer=Imoize
             org.opencontainers.image.vendor=Imoize
