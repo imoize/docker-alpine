@@ -1,78 +1,49 @@
-FROM alpine:3.17 as build-stage
+FROM alpine:3.18 as build-stage
 
 ARG TARGETARCH
 ARG TARGETVARIANT
-ARG ALPINE_VERSION="3.17"
 
-# add required packages
+ENV REL=v3.18
+ENV ROOTFS=/root-out
+ENV MIRROR=http://dl-cdn.alpinelinux.org/alpine
+ENV PACKAGES=alpine-baselayout,\
+alpine-keys,\
+apk-tools,\
+busybox,\
+libc-utils
+
+# set version for s6 overlay
+ARG S6_OVERLAY_VERSION="3.1.5.0"
+ARG S6_OVERLAY_ARCH
+
+# build rootfs and add s6 overlay
 RUN \
     apk add --no-cache \
     bash \
     curl \
-    patch \
-    tar \
-    tzdata \
-    xz \
-    jq
-
-# fetch builder script
-COPY scripts/mkimage-alpine.bash /
-RUN \
-    ./mkimage-alpine.bash && \
-    mkdir /build-out && \
-    tar xf \
-    /rootfs.tar.xz -C \
-    /build-out && \
-    sed -i -e 's/^root::/root:!:/' //build-out/etc/shadow
-
-# build images per arch
-FROM build-stage AS base-386
-ARG S6_OVERLAY_ARCH="i686"
-
-FROM build-stage AS base-amd64
-ARG S6_OVERLAY_ARCH="x86_64"
-
-FROM build-stage AS base-arm64
-ARG S6_OVERLAY_ARCH="aarch64"
-
-FROM build-stage AS base-armv7
-ARG S6_OVERLAY_ARCH="armhf"
-
-FROM build-stage AS base-armv6
-ARG S6_OVERLAY_ARCH="arm"
-
-FROM build-stage AS base-s390x
-ARG S6_OVERLAY_ARCH="s390x"
-
-FROM build-stage AS base-ppc64le
-ARG S6_OVERLAY_ARCH="powerpc64le"
-
-# s6-stage
-FROM base-${TARGETARCH}${TARGETVARIANT} as s6-stage
-
-# set version for s6 overlay
-ARG S6_OVERLAY_VERSION
-
-# add s6 overlay
-RUN \
-    apk add --no-cache \
-    curl && \
-    if [ -z ${S6_OVERLAY_VERSION+x} ]; then \
-        S6_OVERLAY_VERSION=$(curl -sL "https://api.github.com/repos/just-containers/s6-overlay/releases/latest" | jq -r ".tag_name"); \
-    fi && \
-    curl -sLO "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" && \
-    tar -C /build-out -Jxpf s6-overlay-noarch.tar.xz && \
-    curl -sLO "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz" && \
-    tar -C /build-out -Jxpf s6-overlay-${S6_OVERLAY_ARCH}.tar.xz && \
-    curl -sLO "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz" && \
-    tar -C /build-out -Jxpf s6-overlay-symlinks-noarch.tar.xz && \
-    curl -sLO "https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz" && \
-    tar -C /build-out -Jxpf s6-overlay-symlinks-arch.tar.xz
-
+    xz && \
+    if [ ${TARGETARCH}${TARGETVARIANT} == amd64 ]; then ARCH=x86_64; \
+    elif [ ${TARGETARCH}${TARGETVARIANT} == arm64 ]; then ARCH=aarch64; fi && \
+    if [ -z ${S6_OVERLAY_ARCH+x} ]; then S6_OVERLAY_ARCH=${ARCH}; fi && \
+    mkdir -p "$ROOTFS/etc/apk" && \
+    { \
+        echo "$MIRROR/$REL/main"; \
+        echo "$MIRROR/$REL/community"; \
+    } > "$ROOTFS/etc/apk/repositories" && \
+    apk --root "$ROOTFS" --no-cache --keys-dir /etc/apk/keys add --arch $ARCH --initdb ${PACKAGES//,/ } && \
+    sed -i -e 's/^root::/root:!:/' /root-out/etc/shadow && \
+    curl -sLO --output-dir /tmp "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz" && \
+    tar -C /root-out -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
+    curl -sLO --output-dir /tmp "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz" && \
+    tar -C /root-out -Jxpf /tmp/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz && \
+    curl -sLO --output-dir /tmp "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-noarch.tar.xz" && \
+    tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-noarch.tar.xz && \
+    curl -sLO --output-dir /tmp "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-symlinks-arch.tar.xz" && \
+    tar -C /root-out -Jxpf /tmp/s6-overlay-symlinks-arch.tar.xz
 
 # runtime stage
 FROM scratch
-COPY --from=s6-stage /build-out/ /
+COPY --from=build-stage /root-out/ /
 
 ENV PS1="$(whoami)@$(hostname):$(pwd)\\$ " \
     HOME="/root" \
@@ -92,9 +63,9 @@ RUN \
     sed \
     jq \
     ed \
-    procps \
-    shadow \
+    procps-ng \
     netcat-openbsd \
+    shadow \
     tzdata && \
     echo "**** create user and make folders ****" && \
     groupmod -g 1000 users && \
