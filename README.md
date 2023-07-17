@@ -2,9 +2,9 @@
 
 Custom image based on alpine with s6-overlay. 
 
-[![Github Build Status](https://img.shields.io/github/actions/workflow/status/imoize/docker-base-alpine/build-prod-ci.yml?color=458837&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=build&logo=github)](https://github.com/imoize/docker-base-alpine/actions?workflow=build-prod-ci)
-[![GitHub](https://img.shields.io/static/v1.svg?color=3C79F5&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=imoize&message=GitHub&logo=github)](https://github.com/imoize/docker-base-alpine)
-[![GitHub Package Repository](https://img.shields.io/static/v1.svg?color=3C79F5&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=imoize&message=GitHub%20Package&logo=github)](https://github.com/imoize/docker-base-alpine/pkgs/container/alpine-s6)
+[![Github Build Status](https://img.shields.io/github/actions/workflow/status/imoize/docker-alpine/build-prod-ci.yml?color=458837&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=build&logo=github)](https://github.com/imoize/docker-alpine/actions?workflow=build-prod-ci)
+[![GitHub](https://img.shields.io/static/v1.svg?color=3C79F5&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=imoize&message=GitHub&logo=github)](https://github.com/imoize/docker-alpine)
+[![GitHub Package Repository](https://img.shields.io/static/v1.svg?color=3C79F5&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=imoize&message=GitHub%20Package&logo=github)](https://github.com/imoize/docker-alpine/pkgs/container/alpine-s6)
 [![Docker Pulls](https://img.shields.io/docker/pulls/imoize/alpine-s6.svg?color=3C79F5&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=pulls&logo=docker)](https://hub.docker.com/r/imoize/alpine-s6)
 
 ## Supported Architectures
@@ -17,13 +17,9 @@ The architectures supported by this image:
 
 | Architecture | Available |
 | :----: | :----: |
-| x86 | ✅ |
 | x86-64 | ✅ |
 | arm64 | ✅ |
-| armv7 | ✅ |
-| armv6 | ✅ |
-| s390x | ✅ |
-|ppc64le | ✅ |
+
 ## Usage
 
 Here are some example to help you get started creating a container, easiest way to setup is using docker-compose or use docker cli.
@@ -182,8 +178,8 @@ docker image prune
 
 ## Contributing
 
-We'd love for you to contribute to this container. You can submitting a [pull request](https://github.com/imoize/docker-base-alpine/pulls) with your contribution.
+We'd love for you to contribute to this container. You can submitting a [pull request](https://github.com/imoize/docker-alpine/pulls) with your contribution.
 
 ## Issues
 
-If you encountered a problem running this container, you can create an [issue](https://github.com/imoize/docker-base-alpine/issues).
+If you encountered a problem running this container, you can create an [issue](https://github.com/imoize/docker-alpine/issues).
