@@ -1,18 +1,26 @@
-name: build-dev
+name: build
 
 on:
   workflow_dispatch:
+  schedule:
+      - cron: "0 0 * * 4"
   push:
     branches: 
-      - "dev"
+      - "main"
+    tags: 
+      - "*"
     paths-ignore:
       - "**.md"
-
+  pull_request:
+    branches:
+      - "main"
+    paths-ignore:
+      - "**.md"
+    
 env:
   DOCKERHUB_SLUG: imoize/alpine-s6
-  GHCR_SLUG: ghcr.io/imoize/alpine-s6-dev
+  GHCR_SLUG: ghcr.io/imoize/alpine-s6
   ALPINE_LATEST: 3.18
-
 
 jobs:
   build:
@@ -27,7 +35,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-
+      
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3.5.3
@@ -37,8 +45,18 @@ jobs:
         run: |
           ALPINE_VERSION=${{ matrix.alpine_version }}
           BUILD_ARG="${ALPINE_VERSION}"
+          IMAGE_VERSION=$(curl -s "https://api.github.com/repos/${{ github.repository }}/tags" | jq -r '.[0].name')
+
+          LATEST=""
+          if [ "$ALPINE_VERSION" = "${{ env.ALPINE_LATEST }}" ]; then
+              LATEST="true"
+          else
+              LATEST="false"
+          fi
           
+          echo "image_version=$IMAGE_VERSION" >> "$GITHUB_OUTPUT"
           echo "alpine_version=$ALPINE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
           echo "build_arg=$BUILD_ARG" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
@@ -68,16 +86,17 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4.6.0
         with:
+          flavor: latest=${{ steps.prep.outputs.latest }}
           images: |
             ${{ env.GHCR_SLUG }}
             ${{ env.DOCKERHUB_SLUG }}
           labels: |
             maintainer=Imoize
             org.opencontainers.image.vendor=Imoize
-            org.opencontainers.image.title=alpine-s6-dev
-            org.opencontainers.image.version=dev
+            org.opencontainers.image.title=alpine-s6
+            org.opencontainers.image.version=${{ steps.prep.outputs.image_version }}
           tags: |
-            ${{ steps.prep.outputs.alpine_version }}-dev
+            ${{ steps.prep.outputs.alpine_version }}
 
       - name: Build and Push Docker Image
         if: ${{ github.event_name != 'pull_request' }}
@@ -91,6 +110,15 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
       
+      - name: Docker Hub Description
+        if: github.event_name != 'pull_request'
+        uses: peter-evans/dockerhub-description@v3.4.2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.DOCKERHUB_SLUG }}
+          short-description: ${{ github.event.repository.description }}
+
       - name: Check Manifest
         if: github.event_name != 'pull_request'
         run: |
