@@ -122,13 +122,13 @@ jobs:
       - name: Check Manifest
         if: github.event_name != 'pull_request'
         run: |
-          docker buildx imagetools inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker buildx imagetools inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker buildx imagetools inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.prep.outputs.alpine_version }}
+          docker buildx imagetools inspect ${{ env.GHCR_SLUG }}:${{ steps.prep.outputs.alpine_version }}
 
       - name: Check Pull
         if: github.event_name != 'pull_request'
         run: |
-          docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker pull ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.prep.outputs.alpine_version }}
+          docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.prep.outputs.alpine_version }}
+          docker pull ${{ env.GHCR_SLUG }}:${{ steps.prep.outputs.alpine_version }}
+          docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.prep.outputs.alpine_version }}
