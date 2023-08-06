@@ -8,17 +8,17 @@ TZ=${TZ:-UTC}
 groupmod -o -g "$PGID" disty
 usermod -o -u "$PUID" disty
 
-echo '
--------------------------------------'
-echo '
+echo "
+-------------------------------------"
+echo "
 UID/GID/TZ Information:
--------------------------------------'
+-------------------------------------"
 echo "
 User uid :    $(id -u disty)
 User gid :    $(id -g disty)
 Timezone :    $TZ
--------------------------------------
-"
+-------------------------------------"
+
 chown disty:disty /app
 chown disty:disty /config
 chown disty:disty /defaults

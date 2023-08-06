@@ -1,9 +1,12 @@
-FROM alpine:3.18 as build-stage
+ARG ALPINE_VERSION
+
+FROM alpine:${ALPINE_VERSION} as build-stage
 
 ARG TARGETARCH
 ARG TARGETVARIANT
+ARG ALPINE_VERSION
 
-ENV REL=v3.18
+ENV REL=v${ALPINE_VERSION}
 ENV ROOTFS=/root-out
 ENV MIRROR=http://dl-cdn.alpinelinux.org/alpine
 ENV PACKAGES=alpine-baselayout,\
@@ -49,10 +52,10 @@ ENV PS1="$(whoami)@$(hostname):$(pwd)\\$ " \
     HOME="/root" \
     TERM="xterm" \
     S6_CMD_WAIT_FOR_SERVICES_MAXTIME="0" \
-    S6_VERBOSITY="2"
+    S6_VERBOSITY="1"
 
+# install packages
 RUN \
-    echo "**** install runtime packages ****" && \
     apk update && apk upgrade && \
     apk add --no-cache \
     alpine-release \
@@ -63,11 +66,12 @@ RUN \
     sed \
     jq \
     ed \
-    procps-ng \
     netcat-openbsd \
     shadow \
     tzdata && \
-    echo "**** create user and make folders ****" && \
+apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main \
+    procps-ng && \
+# create user and make folders
     groupmod -g 1000 users && \
     useradd -u 901 -U -d /config -s /bin/false disty && \
     usermod -G users disty && \
@@ -75,7 +79,7 @@ RUN \
     /app \
     /config \
     /defaults && \
-    echo "**** cleanup ****" && \
+# cleanup
     rm -rf \
     /tmp/* \
     /var/cache/apk/*
