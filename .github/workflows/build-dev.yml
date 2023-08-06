@@ -10,7 +10,7 @@ on:
 
 env:
   DOCKERHUB_SLUG: imoize/alpine-s6
-  GHCR_SLUG: ghcr.io/imoize/alpine-s6-dev
+  GHCR_SLUG: ghcr.io/imoize/alpine-s6
   ALPINE_LATEST: 3.18
 
 
@@ -94,13 +94,13 @@ jobs:
       - name: Check Manifest
         if: github.event_name != 'pull_request'
         run: |
-          docker buildx imagetools inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker buildx imagetools inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker buildx imagetools inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.prep.outputs.alpine_version }}-dev
+          docker buildx imagetools inspect ${{ env.GHCR_SLUG }}:${{ steps.prep.outputs.alpine_version }}-dev
 
       - name: Check Pull
         if: github.event_name != 'pull_request'
         run: |
-          docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker pull ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
-          docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.tags }}
+          docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.prep.outputs.alpine_version }}-dev
+          docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.prep.outputs.alpine_version }}-dev
+          docker pull ${{ env.GHCR_SLUG }}:${{ steps.prep.outputs.alpine_version }}-dev
+          docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.prep.outputs.alpine_version }}-dev
