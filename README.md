@@ -81,7 +81,7 @@ alpine-s6:
 - `PUID=...` for UserID.
 - `PGID=...` for GroupID.
 - `TZ=...` specify a timezone see this [list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List). Default: **UTC**
-- `S6_VERBOSITY=...` controls the verbosity of s6-rc. Default: **2**
+- `S6_VERBOSITY=...` controls the verbosity of s6-rc. Default: **1**
     * 0 will only print errors.
     * 1 will only print warnings and errors.
     * 2 is normally verbose: it will list the service start and stop operations.
