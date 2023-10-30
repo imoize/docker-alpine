@@ -48,7 +48,7 @@ RUN \
 FROM scratch
 COPY --from=build-stage /root-out/ /
 
-ENV PS1="$(whoami)@$(hostname):$(pwd)\\$ " \
+ENV PS1="$(whoami)@$(hostname):$(pwd)\\$" \
     HOME="/root" \
     TERM="xterm" \
     S6_CMD_WAIT_FOR_SERVICES_MAXTIME="0" \
@@ -63,9 +63,7 @@ RUN \
     ca-certificates \
     coreutils \
     curl \
-    sed \
     jq \
-    ed \
     netcat-openbsd \
     shadow \
     tzdata && \
