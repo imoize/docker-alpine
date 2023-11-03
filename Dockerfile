@@ -52,6 +52,7 @@ ENV PS1="$(whoami)@$(hostname):$(pwd)\\$" \
     HOME="/root" \
     TERM="xterm" \
     S6_CMD_WAIT_FOR_SERVICES_MAXTIME="0" \
+    S6_BEHAVIOUR_IF_STAGE2_FAILS="2" \
     S6_VERBOSITY="1"
 
 # install packages
