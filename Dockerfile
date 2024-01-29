@@ -57,8 +57,7 @@ ENV PS1="$(whoami)@$(hostname):$(pwd)\\$" \
 
 # install packages
 RUN \
-    apk update && apk upgrade && \
-    apk add --no-cache \
+apk update && apk add --no-cache \
     alpine-release \
     bash \
     ca-certificates \
@@ -68,7 +67,7 @@ RUN \
     netcat-openbsd \
     shadow \
     tzdata && \
-apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main \
+apk update && apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
     procps-ng && \
 # create user and make folders
     groupmod -g 1000 users && \
