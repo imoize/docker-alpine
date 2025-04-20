@@ -1,6 +1,6 @@
 ARG ALPINE_VERSION
 
-FROM alpine:${ALPINE_VERSION} as build-stage
+FROM alpine:${ALPINE_VERSION} AS build-stage
 
 ARG TARGETARCH
 ARG TARGETVARIANT
@@ -16,7 +16,7 @@ busybox,\
 libc-utils
 
 # set version for s6 overlay
-ARG S6_OVERLAY_VERSION="3.2.0.0"
+ARG S6_OVERLAY_VERSION="3.2.0.2"
 ARG S6_OVERLAY_ARCH
 
 # build rootfs and add s6 overlay
@@ -65,10 +65,9 @@ apk update && apk add --no-cache \
     curl \
     jq \
     netcat-openbsd \
+    procps-ng \
     shadow \
     tzdata && \
-apk update && apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-    procps-ng && \
 # create user and make folders
     groupmod -g 1000 users && \
     useradd -u 901 -U -d /config -s /bin/false disty && \
