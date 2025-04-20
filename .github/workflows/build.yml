@@ -28,8 +28,8 @@ jobs:
       fail-fast: false
       matrix:
         alpine_version:
-          - 3.20
-          - 3.21
+          - '3.20'
+          - '3.21'
 
     runs-on: ubuntu-latest
     permissions:
@@ -43,7 +43,7 @@ jobs:
       - name: Preparation
         id: prep
         run: |
-          ALPINE_VERSION=${{ matrix.alpine_version }}
+          ALPINE_VERSION="${{ matrix.alpine_version }}"
           BUILD_ARG="${ALPINE_VERSION}"
           IMAGE_VERSION=$(curl -s "https://api.github.com/repos/${{ github.repository }}/tags" | jq -r '.[0].name')
 
