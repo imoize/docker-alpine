@@ -111,7 +111,9 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
-          build-args: ALPINE_VERSION=${{ steps.prep.outputs.alpine_version }},ALPINE_RELEASE=${{ steps.prep.outputs.alpine_release }}
+          build-args: |
+            ALPINE_VERSION=${{ steps.prep.outputs.alpine_version }}
+            ALPINE_RELEASE=${{ steps.prep.outputs.alpine_release }}
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
