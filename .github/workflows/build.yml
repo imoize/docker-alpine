@@ -28,6 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         alpine_version:
+          - 'edge'
           - '3.20'
           - '3.21'
 
@@ -44,7 +45,12 @@ jobs:
         id: prep
         run: |
           ALPINE_VERSION="${{ matrix.alpine_version }}"
-          BUILD_ARG="${ALPINE_VERSION}"
+          ALPINE_RELEASE=$ALPINE_VERSION
+
+          if [[ "$ALPINE_VERSION" != "edge" ]]; then
+            ALPINE_RELEASE="v$ALPINE_VERSION"
+          fi
+
           IMAGE_VERSION=$(curl -s "https://api.github.com/repos/${{ github.repository }}/tags" | jq -r '.[0].name')
 
           LATEST=""
@@ -56,8 +62,8 @@ jobs:
 
           echo "image_version=$IMAGE_VERSION" >> "$GITHUB_OUTPUT"
           echo "alpine_version=$ALPINE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "alpine_release=$ALPINE_RELEASE" >> "$GITHUB_OUTPUT"
           echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
-          echo "build_arg=$BUILD_ARG" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         id: qemu
@@ -105,7 +111,7 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
-          build-args: ALPINE_VERSION=${{ steps.prep.outputs.build_arg }}
+          build-args: ALPINE_VERSION=${{ steps.prep.outputs.alpine_version }},ALPINE_RELEASE=${{ steps.prep.outputs.alpine_release }}
           push: ${{ github.event_name != 'pull_request' }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
